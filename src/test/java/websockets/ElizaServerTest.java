@@ -11,9 +11,11 @@ import websockets.web.ElizaServerEndpoint;
 
 import javax.websocket.*;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -21,6 +23,7 @@ import java.util.logging.Logger;
 
 import static java.lang.String.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ElizaServerTest {
 
@@ -56,14 +59,22 @@ public class ElizaServerTest {
 	}
 
 	@Test(timeout = 1000)
-	@Ignore
+//	@Ignore
 	public void onChat() throws DeploymentException, IOException, URISyntaxException, InterruptedException {
-		// COMPLETE ME!!
+        List<String> temp12 = Arrays.asList("What does that dream suggest to you?", "Do you dream often?",
+                "What persons appear in your dreams?", "Are you disturbed by your dreams?");
 		List<String> list = new ArrayList<>();
 		ClientEndpointConfig configuration = ClientEndpointConfig.Builder.create().build();
 		ClientManager client = ClientManager.createClient();
-		client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
-		// COMPLETE ME!!
+		Session session = client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
+        session.getAsyncRemote().sendText("You are my nightmare");
+        Thread.sleep(50);
+        assertEquals("The doctor is in.", list.get(0));
+        assertEquals("What's on your mind?", list.get(1));
+        assertTrue(temp12.contains(list.get(3)));
+        session.getAsyncRemote().sendText("bye bye");
+        Thread.sleep(50);
+        assertEquals(false, session.isOpen());
 	}
 
 	@After
